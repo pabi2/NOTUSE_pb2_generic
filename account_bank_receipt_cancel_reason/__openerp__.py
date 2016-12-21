@@ -9,7 +9,9 @@
     'images': [],
     'website': "http://ecosoft.co.th",
     'description': """
+
     When an bank receipt is canceled, a reason must be given as text.
+    
     """,
     'depends': ['account_bank_receipt'],
     'demo': [],

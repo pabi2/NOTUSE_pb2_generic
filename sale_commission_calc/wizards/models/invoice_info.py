@@ -28,23 +28,24 @@ class InvoiceInfo(models.TransientModel):
     _name = 'invoice.info'
     _description = 'Invoice Info'
 
-    @api.model
-    def _get_invoice_id(self):
-        Line = self.env['commission.worksheet.line'].browse(self._context['active_id'])
-        return Line.invoice_id and Line.invoice_id.id or False
-
     invoice_id = fields.Many2one(
         'account.invoice',
-        'Invoice Number',
+        string='Invoice Number',
         readonly=True,
-        default=_get_invoice_id
+        default=lambda self: self._get_invoice_id(),
     )
     invoice_info_line = fields.One2many(
         'invoice.info.line',
         'invoice_info_id',
-        'Invoice Info Lines',
-        readonly=True
+        string='Invoice Info Lines',
+        readonly=True,
     )
+
+    @api.model
+    def _get_invoice_id(self):
+        CommissionWorksheetLine = self.env['commission.worksheet.line']
+        line = CommissionWorksheetLine.browse(self._context['active_id'])
+        return line.invoice_id and line.invoice_id.id or False
 
     @api.onchange('invoice_id')
     def onchange_invoice_id(self):
@@ -71,30 +72,30 @@ class InvoiceInfoLine(models.TransientModel):
 
     invoice_info_id = fields.Many2one(
         'invoice.info',
-        'Invoice Info'
+        string='Invoice Info',
     )
     product_id = fields.Many2one(
         'product.product',
-        'Product'
+        string='Product',
     )
     name = fields.Char(
-        'Description'
+        string='Description',
     )
     quantity = fields.Float(
-        'Quantity',
-        digits_compute=dp.get_precision('Product Unit of Measure')
+        string='Quantity',
+        digits_compute=dp.get_precision('Product Unit of Measure'),
     )
     uos_id = fields.Many2one(
         'product.uom',
-        'UoM'
+        string='UoM',
     )
     price_unit = fields.Float(
-        'Unit Price',
-        digits_compute=dp.get_precision('Account')
+        string='Unit Price',
+        digits_compute=dp.get_precision('Account'),
     )
     price_subtotal = fields.Float(
-        'Subtotal',
-        digits_compute=dp.get_precision('Account')
+        string='Subtotal',
+        digits_compute=dp.get_precision('Account'),
     )
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

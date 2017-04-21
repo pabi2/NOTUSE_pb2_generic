@@ -29,14 +29,14 @@ class GenerateCommissionWorksheet(models.TransientModel):
     _description = 'Generate Commission Worksheet'
 
     result = fields.Text(
-        'Result',
-        readonly=True
+        string='Result',
+        readonly=True,
     )
     state = fields.Selection(
         [('init', 'init'), ('done', 'done')],
-        'Status',
+        string='Status',
         readonly=True,
-        default='init'
+        default='init',
     )
 
     @api.model
@@ -47,41 +47,58 @@ class GenerateCommissionWorksheet(models.TransientModel):
         for worksheet in team_worksheets:  # Team
             Worksheet.create(worksheet)
         # Return Message
-        result_message = sales_worksheets and _('Number of Salesperson Commission Worksheet') + ' = ' + str(len(sales_worksheets)) or ''
+        result_message = sales_worksheets and \
+            _('Number of Salesperson Commission Worksheet') + ' = ' + \
+            str(len(sales_worksheets)) or ''
         result_message += sales_worksheets and "\n" or ''
-        result_message += team_worksheets and _('Number of Team Commission Worksheet') + ' = ' + str(len(team_worksheets)) or ''
+        result_message += team_worksheets and \
+            _('Number of Team Commission Worksheet') + ' = ' + \
+            str(len(team_worksheets)) or ''
         return result_message
 
     @api.multi
     def generate_worksheet(self):
-        context = self._context.copy()
-        # For each sales person with commission rule, find all period that worksheet has not been created for.
+        # For each sales person with commission rule,
+        # find all period that worksheet has not been created for.
         sales_worksheets = []
         team_worksheets = []
         # Sales Person Worksheet
-        self._cr.execute("""select salesperson_id, period_id from
-                          (select distinct team.salesperson_id, ai.period_id from account_invoice_team team
-                          join account_invoice ai on ai.id = team.invoice_id
-                          where ai.state in ('open','paid') and ai.period_id is not null
-                         ) a except (select distinct salesperson_id, period_id from commission_worksheet)
-                         order by salesperson_id, period_id""")
+        self._cr.execute("""select salesperson_id, period_id
+                            from (select distinct team.salesperson_id,
+                                         ai.period_id
+                                  from account_invoice_team team
+                                  join account_invoice ai
+                                      on ai.id = team.invoice_id
+                                  where ai.state in ('open','paid')
+                                        and ai.period_id is not null
+                                 ) a except (select distinct salesperson_id,
+                                                    period_id
+                                             from commission_worksheet)
+                            order by salesperson_id, period_id""")
         for res in self._cr.dictfetchall():
             sales_worksheets.append({'salesperson_id': res['salesperson_id'],
                                      'period_id': res['period_id']})
         # Team Work Sheet
-        self._cr.execute("""select sale_team_id, period_id from
-                          (select distinct team.sale_team_id, ai.period_id from account_invoice_team team
-                          join account_invoice ai on ai.id = team.invoice_id
-                          where ai.state in ('open','paid') and ai.period_id is not null
-                          ) a except (select distinct sale_team_id, period_id from commission_worksheet)
-                          order by sale_team_id, period_id""")
+        self._cr.execute("""select sale_team_id, period_id
+                            from (select distinct team.sale_team_id,
+                                         ai.period_id
+                                  from account_invoice_team team
+                                  join account_invoice ai
+                                      on ai.id = team.invoice_id
+                                  where ai.state in ('open','paid')
+                                      and ai.period_id is not null
+                                 ) a except (select distinct sale_team_id,
+                                                    period_id
+                                             from commission_worksheet)
+                            order by sale_team_id, period_id""")
         for res in self._cr.dictfetchall():
             team_worksheets.append({'sale_team_id': res['sale_team_id'],
                                     'period_id': res['period_id']})
         # Create worksheet
-        result_message = self.with_context(context)._create_worksheets(sales_worksheets, team_worksheets)
+        result_message = self._create_worksheets(sales_worksheets,
+                                                 team_worksheets)
 
-        self.with_context(context).write({'result': result_message, 'state': 'done'})
+        self.write({'result': result_message, 'state': 'done'})
         res = {
             'name': _("Generate Commission Worksheet"),
             'view_type': 'form',

@@ -22,11 +22,12 @@
 from openerp import models, fields
 
 # Available commission rule
-COMMISSION_RULE = [('percent_fixed', 'Fixed Commission Rate'),
-                   ('percent_product_category', 'Product Category Commission Rate'),
-                   ('percent_product', 'Product Commission Rate'),
-                   ('percent_product_step', 'Product Commission Rate Steps'),
-                   ('percent_amount', 'Commission Rate By Order Amount')]
+COMMISSION_RULE = [
+    ('percent_fixed', 'Fixed Commission Rate'),
+    ('percent_product_category', 'Product Category Commission Rate'),
+    ('percent_product', 'Product Commission Rate'),
+    ('percent_product_step', 'Product Commission Rate Steps'),
+    ('percent_amount', 'Commission Rate By Order Amount')]
 
 # COMMENT: All PEP8 + put string in fields
 # Fix context if possible
@@ -41,20 +42,20 @@ class CommissionRule(models.Model):
     name = fields.Char(
         string='Name',
         size=64,
-        required=True
+        required=True,
     )
     type = fields.Selection(
         COMMISSION_RULE,
         string='Type',
-        required=True
+        required=True,
     )
     fix_percent = fields.Float(
-        'Fix Percentage'
+        string='Fix Percentage',
     )
     rule_rates = fields.One2many(
         'commission.rule.rate',
         'commission_rule_id',
-        'Rates'
+        string='Rates',
     )
     active = fields.Boolean(
         string='Active',
@@ -80,19 +81,19 @@ class CommissionRuleRate(models.Model):
 
     commission_rule_id = fields.Many2one(
         'commission.rule',
-        'Commission Rule'
+        string='Commission Rule',
     )
     amount_over = fields.Float(
-        'Amount Over',
-        required=True
+        string='Amount Over',
+        required=True,
     )
     amount_upto = fields.Float(
-        'Amount Up-To',
-        required=True
+        string='Amount Up-To',
+        required=True,
     )
     percent_commission = fields.Float(
-        'Commission (%)',
-        required=True
+        string='Commission (%)',
+        required=True,
     )
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

@@ -29,14 +29,14 @@ class UpdateInvoiceCommission(models.TransientModel):
     _description = 'Update Invoice Commission'
 
     result = fields.Text(
-        'Result',
-        readonly=True
+        string='Result',
+        readonly=True,
     )
     state = fields.Selection(
         [('init', 'init'), ('done', 'done')],
-        'Status',
+        string='Status',
         readonly=True,
-        default='init'
+        default='init',
     )
 
     @api.multi
@@ -47,12 +47,8 @@ class UpdateInvoiceCommission(models.TransientModel):
         # Get salepersons/team commission for users in invoices
         invoices = Invoice.search([('type', 'in',
                                     ('out_invoice', 'out_refund'))])
-        # self._cr.execute("select distinct user_id from account_invoice "
-        #                  "where type in ('out_invoice','out_refund')")
-        # users = self._cr.dictfetchall()
         users = list(set(invoices.mapped('user_id')))
         for user in users:
-            # user_id = user['user_id']
             # For this users, find relevant commission
             salespersons = Invoice._get_salesperson_comm(user)
             sale_teams = Invoice._get_sale_team_comm(user)
@@ -73,7 +69,7 @@ class UpdateInvoiceCommission(models.TransientModel):
         # Message
         result_message = _('Number of invoice updated') + ' = ' + str(updated)
 
-        self.with_context(self._context).write({'result': result_message, 'state': 'done'})
+        self.write({'result': result_message, 'state': 'done'})
         res = {
             'name': _("Update Invoice's Commission"),
             'view_type': 'form',

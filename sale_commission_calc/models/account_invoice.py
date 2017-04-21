@@ -28,25 +28,25 @@ class AccountInvoiceTeam(models.Model):
 
     invoice_id = fields.Many2one(
         'account.invoice',
-        'Invoice',
+        string='Invoice',
         required=False,
-        ondelete='cascade'
+        ondelete='cascade',
     )
     salesperson_id = fields.Many2one(
         'res.users',
-        'Salesperson',
-        required=False
+        string='Salesperson',
+        required=False,
     )
     sale_team_id = fields.Many2one(
         'sale.team',
-        'Team',
-        required=False
+        string='Team',
+        required=False,
     )
     commission_rule_id = fields.Many2one(
         'commission.rule',
-        'Applied Commission',
+        string='Applied Commission',
         required=True,
-        readonly=True
+        readonly=True,
     )
 
     @api.onchange('sale_team_id')
@@ -70,12 +70,12 @@ class AccountInvoice(models.Model):
         'account.invoice.team',
         'invoice_id',
         string='Teams',
-        states={'draft': [('readonly', False)]}
+        states={'draft': [('readonly', False)]},
     )
     worksheet_id = fields.Many2one(
         'commission.worksheet',
         string='Commission worksheet',
-        readonly=True
+        readonly=True,
     )
 
     @api.model

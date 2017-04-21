@@ -28,21 +28,21 @@ class ProductProduct(models.Model):
     _inherit = 'product.product'
 
     percent_commission = fields.Float(
-        'Commission (%)',
+        string='Commission (%)',
         digits=(16, 2),
-        readonly=False
+        readonly=False,
     )
     limit_price = fields.Float(
-        'Limit Price',
+        string='Limit Price',
         digits_compute=dp.get_precision('Product Price'),
         readonly=False,
-        help="Minimum product selling price to get commission"
+        help="Minimum product selling price to get commission",
     )
     rate_step_ids = fields.One2many(
         'commission.rate.step',
         'product_id',
-        'Commission Rate Steps',
-        readonly=False
+        string='Commission Rate Steps',
+        readonly=False,
     )
 
 
@@ -53,20 +53,20 @@ class CommissionRateStep(models.Model):
 
     product_id = fields.Many2one(
         'product.product',
-        'Product',
+        string='Product',
         readonly=True,
         ondelete='cascade',
-        select=True
+        select=True,
     )
     amount_over = fields.Float(
-        'From Unit Price',
+        string='From Unit Price',
         digits_compute=dp.get_precision('Product Price'),
-        readonly=False
+        readonly=False,
     )
     percent_commission = fields.Float(
-        'Commission (%)',
+        string='Commission (%)',
         digits=(16, 2),
-        readonly=False
+        readonly=False,
     )
 
 
@@ -75,9 +75,9 @@ class ProductCategory(models.Model):
     _inherit = 'product.category'
 
     percent_commission = fields.Float(
-        'Commission (%)',
+        string='Commission (%)',
         digits=(16, 2),
-        readonly=False
+        readonly=False,
     )
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

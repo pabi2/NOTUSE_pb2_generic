@@ -27,32 +27,34 @@ class CreateCommissionInvoice(models.TransientModel):
 
     """Create Commission Invoice"""
 
-    @api.model
-    def _get_commission_amt(self):
-        worksheet = self.env['commission.worksheet'].browse(self._context['active_id'])
-        if worksheet:
-            return worksheet.amount_valid
-        return False
-
     _name = 'create.commission.invoice'
     _description = 'Create Commission Invoice'
 
     commission_amt = fields.Float(
-        'Commission Amount',
+        string='Commission Amount',
         digits_compute=dp.get_precision('Account'),
         readonly=True,
-        default=_get_commission_amt
+        default=lambda self: self._get_commission_amt(),
     )
     comment = fields.Text(
-        'Comment'
+        string='Comment',
     )
+
+    @api.model
+    def _get_commission_amt(self):
+        CommissionWorksheet = self.env['commission.worksheet']
+        worksheet = CommissionWorksheet.browse(self._context['active_id'])
+        if worksheet:
+            return worksheet.amount_valid
+        return False
 
     @api.multi
     def create_commission_invoice(self):
-        context = self._context.copy()
-        form_data = self.with_context(context).read(['comment'])[0]
-        context.update({'comment': form_data['comment']})
-        commission_worksheet = self.env['commission.worksheet'].browse(context['active_id'])
-        return commission_worksheet.with_context(context).action_create_invoice()
+        ctx = self._context.copy()
+        form_data = self.read(['comment'])[0]
+        ctx.update({'comment': form_data['comment']})
+        CommissionWorksheet = self.env['commission.worksheet']
+        commission_worksheet = CommissionWorksheet.browse([ctx['active_id']])
+        return commission_worksheet.with_context(ctx).action_create_invoice()
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

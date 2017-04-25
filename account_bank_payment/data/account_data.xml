@@ -7,7 +7,7 @@
             <field name="code">PBIN</field>
             <field name="type">bank</field>
             <field name="company_id" ref="base.main_company"/>
-            <field name="intransit">True</field>
+            <field name="purchase_intransit">True</field>
         </record>
 
     </data>

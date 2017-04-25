@@ -23,6 +23,16 @@ class AccountVoucher(models.Model):
         readonly=True,
     )
 
+    @api.model
+    def _make_journal_search(self, ttype):
+        res = super(AccountVoucher, self)._make_journal_search(ttype)
+        context = self._context.copy()
+        Journal = self.env['account.journal']
+        if context.get('type', False) == 'payment':
+            res = Journal.search([('type', '=', ttype),
+                                  ('purchase_intransit', '=', True)], limit=1)
+        return res
+
     @api.multi
     @api.depends('move_id.bank_payment_id')
     def _compute_bank_payment(self):
